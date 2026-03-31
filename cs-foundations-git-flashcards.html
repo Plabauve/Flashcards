@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tech Foundations Flashcards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(145deg, #0c1220 0%, #1a1a2e 40%, #16213e 100%);
+    font-family: 'Outfit', system-ui, sans-serif;
+    color: #e2e8f0;
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .container { max-width: 520px; width: 100%; display: flex; flex-direction: column; gap: 16px; }
+
+  .header { padding: 20px 0 8px; }
+  .title-row { display: flex; justify-content: space-between; align-items: center; }
+  h1 {
+    font-size: 22px; font-weight: 700; letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .reset-btn {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    color: #94a3b8; font-size: 12px; padding: 6px 14px; border-radius: 8px;
+    cursor: pointer; font-family: inherit; transition: background 0.15s;
+  }
+  .reset-btn:hover { background: rgba(255,255,255,0.1); }
+  .subtitle { font-size: 13px; color: #64748b; margin: 4px 0 14px; }
+
+  .progress-outer { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+  .progress-inner {
+    height: 100%; background: linear-gradient(90deg, #22c55e, #4ade80);
+    border-radius: 3px; transition: width 0.5s ease; width: 0%;
+  }
+  .stats-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+  .badge-learned  { background: rgba(34,197,94,0.12); color: #4ade80; }
+  .badge-review   { background: rgba(251,191,36,0.12); color: #fbbf24; }
+  .badge-due      { background: rgba(96,165,250,0.12); color: #60a5fa; }
+  .badge-right    { background: rgba(34,197,94,0.08); color: #86efac; font-weight: 500; margin-left: auto; }
+  .badge-wrong    { background: rgba(239,68,68,0.08); color: #fca5a5; font-weight: 500; }
+
+  .streak-row { display: flex; align-items: center; gap: 6px; justify-content: center; }
+  .streak-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: rgba(255,255,255,0.15); transition: all 0.3s ease;
+  }
+  .streak-dot.active { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.5); }
+  .streak-label { font-size: 12px; color: #64748b; margin-left: 4px; }
+
+  .card-area { position: relative; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+  .card {
+    background: linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 18px;
+    min-height: 280px; display: flex; flex-direction: column; justify-content: center;
+    padding: 32px 28px; transition: transform 0.15s ease, box-shadow 0.2s ease;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3); backdrop-filter: blur(10px);
+    cursor: pointer; user-select: none;
+  }
+  .card:hover { transform: scale(1.005); }
+  .card.flipped { cursor: default; }
+  .card-inner { display: flex; flex-direction: column; gap: 16px; align-items: center; text-align: center; }
+  .card-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.15em;
+    color: #64748b; text-transform: uppercase;
+  }
+  .definition-text { font-size: 17px; line-height: 1.6; font-weight: 400; color: #e2e8f0; }
+  .term-text {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    background: linear-gradient(135deg, #60a5fa, #c084fc);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .def-small { font-size: 13px; color: #94a3b8; line-height: 1.5; max-width: 400px; }
+  .tap-hint { font-size: 12px; color: #475569; margin-top: 8px; font-style: italic; }
+
+  .btn-row { display: flex; gap: 12px; }
+  .answer-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 16px 12px; border-radius: 14px; cursor: pointer;
+    font-family: inherit; transition: all 0.15s ease; -webkit-tap-highlight-color: transparent;
+  }
+  .answer-btn:active { transform: scale(0.96); }
+  .btn-wrong {
+    border: 1px solid rgba(239,68,68,0.25); background: rgba(239,68,68,0.08); color: #fca5a5;
+  }
+  .btn-wrong:hover { background: rgba(239,68,68,0.15); }
+  .btn-right {
+    border: 1px solid rgba(34,197,94,0.25); background: rgba(34,197,94,0.08); color: #86efac;
+  }
+  .btn-right:hover { background: rgba(34,197,94,0.15); }
+  .btn-icon { font-size: 22px; font-weight: 700; }
+  .btn-label { font-size: 14px; font-weight: 600; }
+  .btn-time { font-size: 11px; opacity: 0.6; }
+
+  .complete-wrap {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 12px; padding: 60px 20px;
+  }
+  .complete-icon {
+    font-size: 48px; color: #22c55e; width: 80px; height: 80px; border-radius: 50%;
+    background: rgba(34,197,94,0.1); display: flex; align-items: center; justify-content: center;
+  }
+  .complete-title { font-size: 22px; font-weight: 700; color: #f1f5f9; }
+  .complete-text { font-size: 14px; color: #94a3b8; text-align: center; max-width: 360px; line-height: 1.6; }
+  .continue-btn {
+    margin-top: 8px; padding: 10px 24px; border-radius: 10px;
+    border: 1px solid rgba(96,165,250,0.3); background: rgba(96,165,250,0.1);
+    color: #60a5fa; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .continue-btn:hover { background: rgba(96,165,250,0.2); }
+
+  .footer-bar {
+    display: flex; justify-content: center; gap: 16px; padding: 12px 0 8px;
+    font-size: 11px; color: #475569; border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .hidden { display: none !important; }
+
+  @media (min-width: 768px) {
+    .tap-hint::after { content: '  (or press Space)'; }
+  }
+
+  /* ── Landing Page ── */
+  .landing-header { text-align: center; padding: 28px 0 8px; }
+  .landing-header h1 { font-size: 26px; display: inline-block; }
+  .landing-subtitle { font-size: 14px; color: #64748b; margin-top: 6px; }
+  .landing-total { font-size: 12px; color: #475569; margin-top: 2px; }
+
+  .deck-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+
+  .deck-card {
+    background: linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 16px;
+    padding: 20px 22px; cursor: pointer; user-select: none;
+    transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2); backdrop-filter: blur(10px);
+    display: flex; align-items: center; gap: 16px;
+  }
+  .deck-card:hover { transform: scale(1.01); border-color: rgba(255,255,255,0.15); }
+  .deck-card:active { transform: scale(0.98); }
+
+  .deck-icon {
+    width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 700;
+  }
+  .deck-icon-cs { background: rgba(96,165,250,0.15); color: #60a5fa; }
+  .deck-icon-git { background: rgba(251,146,60,0.15); color: #fb923c; }
+  .deck-icon-data { background: rgba(52,211,153,0.15); color: #34d399; }
+  .deck-icon-ai { background: rgba(167,139,250,0.15); color: #a78bfa; }
+  .deck-icon-dbx { background: rgba(251,113,133,0.15); color: #fb7185; }
+
+  .deck-info { flex: 1; min-width: 0; }
+  .deck-name { font-size: 16px; font-weight: 700; color: #f1f5f9; }
+  .deck-desc { font-size: 12px; color: #64748b; margin-top: 2px; line-height: 1.4; }
+  .deck-meta { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+  .deck-count { font-size: 11px; color: #94a3b8; font-weight: 600; }
+  .deck-progress-outer {
+    flex: 1; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden;
+  }
+  .deck-progress-inner {
+    height: 100%; border-radius: 2px; transition: width 0.5s ease; width: 0%;
+  }
+  .deck-progress-cs .deck-progress-inner { background: #60a5fa; }
+  .deck-progress-git .deck-progress-inner { background: #fb923c; }
+  .deck-progress-data .deck-progress-inner { background: #34d399; }
+  .deck-progress-ai .deck-progress-inner { background: #a78bfa; }
+  .deck-progress-dbx .deck-progress-inner { background: #fb7185; }
+  .deck-pct { font-size: 11px; color: #64748b; font-weight: 600; min-width: 30px; text-align: right; }
+
+  .back-btn {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    color: #94a3b8; font-size: 13px; padding: 6px 14px; border-radius: 8px;
+    cursor: pointer; font-family: inherit; transition: background 0.15s;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.1); }
+
+  .landing-reset-row { text-align: center; margin-top: 8px; }
+  .landing-reset-btn {
+    background: none; border: none; color: #475569; font-size: 12px;
+    font-family: inherit; cursor: pointer; opacity: 0.6; transition: opacity 0.15s;
+  }
+  .landing-reset-btn:hover { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ═══════ LANDING PAGE ═══════ -->
+  <div id="landingPage">
+    <div class="landing-header">
+      <h1>Tech Foundations</h1>
+      <p class="landing-subtitle">Choose a deck to start studying</p>
+      <p class="landing-total" id="landingTotal"></p>
+    </div>
+
+    <div class="deck-grid" id="deckGrid"></div>
+
+    <div class="landing-reset-row">
+      <button class="landing-reset-btn" id="landingResetBtn">Reset All Progress</button>
+    </div>
+  </div>
+
+  <!-- ═══════ STUDY VIEW ═══════ -->
+  <div id="studyView" class="hidden">
+    <div class="header">
+      <div class="title-row">
+        <button class="back-btn" id="backBtn">&larr; Decks</button>
+        <button class="reset-btn" id="resetBtn">Reset</button>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="title-row">
+          <h1 id="deckTitle"></h1>
+        </div>
+        <p class="subtitle"><span id="cardCount">0</span> terms</p>
+      </div>
+      <div class="progress-outer"><div class="progress-inner" id="progressBar"></div></div>
+      <div class="stats-row">
+        <span class="badge badge-learned" id="statLearned">0 learned</span>
+        <span class="badge badge-review" id="statReview">0 reviewing</span>
+        <span class="badge badge-due" id="statDue">0 due</span>
+        <span class="badge badge-right" id="statRight">0 right</span>
+        <span class="badge badge-wrong" id="statWrong">0 wrong</span>
+      </div>
+    </div>
+
+    <div class="card-area" id="cardArea">
+      <div class="streak-row">
+        <div class="streak-dot" id="dot0"></div>
+        <div class="streak-dot" id="dot1"></div>
+        <div class="streak-dot" id="dot2"></div>
+        <span class="streak-label" id="streakLabel">New</span>
+      </div>
+
+      <div class="card" id="card">
+        <div class="card-inner" id="cardFront">
+          <div class="card-label">DEFINITION</div>
+          <div class="definition-text" id="defText"></div>
+          <div class="tap-hint">tap to reveal term</div>
+        </div>
+        <div class="card-inner hidden" id="cardBack">
+          <div class="card-label">TERM</div>
+          <div class="term-text" id="termText"></div>
+          <div class="def-small" id="defSmall"></div>
+        </div>
+      </div>
+
+      <div class="btn-row hidden" id="btnRow">
+        <button class="answer-btn btn-wrong" id="wrongBtn">
+          <span class="btn-icon">&#10007;</span>
+          <span class="btn-label">Wrong</span>
+          <span class="btn-time">~2 cards</span>
+        </button>
+        <button class="answer-btn btn-right" id="rightBtn">
+          <span class="btn-icon">&#10003;</span>
+          <span class="btn-label">Right</span>
+          <span class="btn-time" id="rightTime">1m</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="complete-wrap hidden" id="completeScreen">
+      <div class="complete-icon">&#10003;</div>
+      <h2 class="complete-title">All caught up!</h2>
+      <p class="complete-text" id="completeText"></p>
+      <button class="continue-btn" id="continueBtn">Check for due cards</button>
+    </div>
+
+    <div class="footer-bar">
+      <span>Wrong = ~2 cards</span>
+      <span>Right = 1min</span>
+      <span>3x right = next day</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+
+// ══════════════════════════════════════════════════════════════
+// DECK DEFINITIONS
+// ══════════════════════════════════════════════════════════════
+
+const DECKS = [
+  {
+    id: "cs",
+    name: "CS Foundations",
+    desc: "Computing, OS, hardware, programming, networking, security, terminal, web, cloud, and more",
+    icon: "CS",
+    iconClass: "deck-icon-cs",
+    progressClass: "deck-progress-cs",
+    cards: [
+  // ── Fundamental Computing ──
+  {t:"Computer",d:"An electronic device that receives input, processes it according to stored instructions (programs), and produces output. Examples include desktops, laptops, smartphones, and servers."},
+  {t:"Software",d:"The programs, applications, and data that run on computer hardware \u2014 everything that isn\u2019t physical. Includes system software (operating systems), application software (browsers, games), and firmware."},
+  {t:"Hardware",d:"The physical components of a computer system \u2014 anything you can touch. Examples: monitor, keyboard, CPU chip, hard drive, RAM sticks."},
+  {t:"Binary",d:"A number system using only 0 and 1 \u2014 the fundamental language of computers. Like a light switch that\u2019s either on (1) or off (0). The letter 'A' = 01000001 in this system."},
+  {t:"Bit",d:"The smallest unit of data in computing, representing a single 0 or 1."},
+  {t:"Byte",d:"A group of 8 bits. One byte can represent one character. 1,024 bytes make a kilobyte, 1,024 KB make a megabyte, and so on up through gigabytes, terabytes, and petabytes."},
+  {t:"Algorithm",d:"A step-by-step procedure for solving a problem or accomplishing a task \u2014 like a recipe with specific steps in a specific order to achieve a result."},
+  {t:"Process",d:"A running instance of a program with its own memory space and system resources. If a program is a job description, this is someone actually doing that job."},
+  {t:"Thread",d:"The smallest unit of execution within a process. A process can have multiple of these running simultaneously \u2014 like individual workers in a factory doing different tasks at the same time."},
+  {t:"Daemon",d:"A background process that runs continuously without user interaction, typically starting at system boot. Like a security guard always on duty."},
+  {t:"Service",d:"A program that runs in the background providing functionality to other programs or users. On Unix/Mac these are often implemented as daemons; on Windows they\u2019re called Windows Services."},
+  {t:"Boot / Booting",d:"The process of starting up a computer and loading the operating system. Stages: power on, BIOS/UEFI initializes hardware, bootloader loads, OS loads, user login available."},
+  {t:"Cache",d:"Temporary storage that keeps frequently accessed data for faster retrieval \u2014 like keeping commonly used tools on your desk instead of walking to the storage room each time."},
+  {t:"Latency",d:"The delay between a request and its response. Low latency means fast response. Includes network latency (travel time across the internet) and disk latency (time to read from storage)."},
+  {t:"Bandwidth",d:"The maximum rate of data transfer across a network connection \u2014 like the width of a pipe. A wider pipe allows more water (data) to flow. Measured in Mbps or Gbps."},
+  {t:"Open Source",d:"Software whose source code is publicly available for anyone to inspect, use, modify, and distribute \u2014 like a recipe published for anyone to cook and share."},
+  // ── Operating Systems ──
+  {t:"Operating System (OS)",d:"Software that manages computer hardware and provides services for running applications \u2014 like a building manager who controls utilities, assigns offices, and enforces rules for all tenants (programs)."},
+  {t:"macOS",d:"Apple\u2019s operating system for Mac computers. Unix-based, uses the Zsh shell by default, and runs exclusively on Apple hardware."},
+  {t:"iOS",d:"Apple\u2019s mobile operating system for iPhone and iPad. Derived from macOS, with apps distributed through the App Store."},
+  {t:"Windows",d:"Microsoft\u2019s operating system for personal computers \u2014 the most widely used desktop OS globally. Uses PowerShell and Command Prompt for terminal access."},
+  {t:"Linux",d:"A free, open-source operating system kernel and family of OSes. Powers most servers worldwide, is highly customizable, and command-line focused. Popular distributions: Ubuntu, Debian, Red Hat."},
+  {t:"Unix",d:"A family of operating systems from AT&T Bell Labs in the 1970s. macOS and Linux are both \u2018Unix-like\u2019 \u2014 they share design philosophy and many commands."},
+  {t:"Android",d:"Google\u2019s mobile operating system based on the Linux kernel \u2014 the most widely used mobile OS in the world."},
+  {t:"Kernel",d:"The core component of an operating system that manages system resources and hardware communication \u2014 handles memory allocation, schedules processes, manages device drivers, and provides security boundaries."},
+  {t:"Driver",d:"Software that allows the operating system to communicate with a specific hardware device. Examples: printer drivers, graphics card drivers, USB device drivers."},
+  {t:"Firmware",d:"Software permanently stored in hardware devices, providing low-level control. Examples: router firmware, keyboard firmware, printer firmware."},
+  // ── Hardware ──
+  {t:"CPU (Central Processing Unit)",d:"The primary component that executes instructions and performs calculations \u2014 the \u2018brain\u2019 of the computer. Key specs: cores (number of processors), clock speed (GHz), and architecture (x86, ARM)."},
+  {t:"GPU (Graphics Processing Unit)",d:"A specialized processor for graphics rendering and parallel computations. Critical for AI/ML because it can perform thousands of calculations simultaneously."},
+  {t:"RAM (Random Access Memory)",d:"Temporary, fast storage that holds data and programs currently in use \u2014 cleared when power is off. Like your desk workspace: you can only work on what fits. Common sizes: 8GB, 16GB, 32GB+."},
+  {t:"SSD (Solid State Drive)",d:"A fast, quiet, durable permanent storage device with no moving parts \u2014 the modern standard for computer storage."},
+  {t:"HDD (Hard Disk Drive)",d:"An older type of permanent storage using spinning magnetic disks. Slower and cheaper per gigabyte than SSDs, being phased out."},
+  {t:"Apple Silicon",d:"Apple\u2019s custom ARM-based processors for Mac computers (M1-M4 series). Combines CPU, GPU, and other components into one chip with excellent performance per watt."},
+  {t:"USB (Universal Serial Bus)",d:"A standard for connecting peripherals to computers. USB-A is the traditional rectangular shape; USB-C is the smaller, reversible, modern standard."},
+  {t:"Ethernet",d:"A wired network connection using cables. More reliable, lower latency, and more consistent speed than WiFi \u2014 recommended for servers."},
+  // ── Files & Storage ──
+  {t:"File",d:"A collection of data stored on disk with a name and a file extension indicating its type (.txt for text, .py for Python, .json for data, .csv for comma-separated values)."},
+  {t:"Folder / Directory",d:"A container that organizes files and other folders in a hierarchical structure \u2014 like nested folders in a filing cabinet."},
+  {t:"Path",d:"The location of a file or folder in the filesystem. An absolute path gives the full location from the root (/Users/you/file.txt); a relative path gives location from where you are now."},
+  {t:"Filesystem",d:"The method and structure an OS uses to organize and store files. Examples: APFS (modern Mac), NTFS (Windows), ext4 (Linux)."},
+  {t:"Home Directory",d:"The personal directory for a user account containing their files and settings. On macOS: /Users/yourname. On Linux: /home/yourname. The ~ shortcut represents it in terminal."},
+  {t:"Hidden Files",d:"Files that don\u2019t appear in normal directory listings, typically starting with a dot (.) on Unix systems. Examples: .bashrc, .gitignore, .env."},
+  {t:"File Permissions",d:"Rules determining who can read, write, or execute a file. Unix uses r (read), w (write), x (execute) applied to three groups: Owner, Group, and Others."},
+  {t:"Archive",d:"A file containing multiple files combined into one, often compressed. Common formats: .zip, .tar, .tar.gz, .rar, .7z."},
+  {t:"Encryption (for files)",d:"Converting data into a coded format that requires a key to read \u2014 like a locked box only someone with the key can open. Examples: FileVault (macOS), BitLocker (Windows)."},
+  // ── Programming Fundamentals ──
+  {t:"Programming",d:"The process of creating instructions (code) that tell a computer what to do."},
+  {t:"Code",d:"Instructions written in a programming language that a computer can execute."},
+  {t:"Syntax",d:"The rules governing how code must be structured in a programming language \u2014 like grammar rules in human languages."},
+  {t:"Variable",d:"A named container that stores a value which can change during program execution \u2014 like a labeled box you can put different things in."},
+  {t:"Data Type",d:"A classification telling the computer how to handle data. Common types: String (text), Integer (whole number), Float (decimal), Boolean (true/false), Array/List (collection)."},
+  {t:"String",d:"A data type representing text \u2014 a sequence of characters like letters, numbers, and symbols enclosed in quotes."},
+  {t:"Integer",d:"A data type representing whole numbers without decimal points, like -3, 0, or 42."},
+  {t:"Float / Double",d:"A data type representing decimal numbers like 3.14 or -0.5. \u2018Double\u2019 is a higher-precision version."},
+  {t:"Boolean",d:"A data type that can only be true or false. Used for yes/no decisions in code, like checking if a user is logged in."},
+  {t:"Array / List",d:"A data type holding an ordered collection of items \u2014 like a numbered list where you access each item by its position (index)."},
+  {t:"Function",d:"A reusable block of code that performs a specific task, optionally taking inputs (parameters) and returning an output."},
+  {t:"Method",d:"A function that belongs to an object or class \u2014 associated with a specific thing rather than standing alone."},
+  {t:"Class",d:"A blueprint for creating objects, defining their properties (data) and behaviors (methods). Like an architectural plan for a house."},
+  {t:"Object",d:"An instance of a class containing data (properties) and functions (methods). If a class is the blueprint, this is the actual house built from it."},
+  {t:"Library",d:"Pre-written code providing functionality you can use \u2014 like a toolbox where someone else built the tools and you just use them."},
+  {t:"Framework",d:"A larger structure providing a foundation and rules for building applications. Unlike a library (you call it), a framework calls your code."},
+  {t:"API (Application Programming Interface)",d:"A set of rules letting different software communicate \u2014 like a waiter taking your order to the kitchen and bringing back your food."},
+  {t:"Endpoint",d:"A specific URL where an API can be reached. \u2018Deploy a model to an endpoint\u2019 means making it available at a specific address."},
+  {t:"REST API",d:"A web API design style using standard HTTP methods: GET (retrieve), POST (send), PUT (update), DELETE (remove)."},
+  {t:"Connector",d:"A pre-built integration letting one software tool talk to another without custom coding \u2014 like a universal power adapter."},
+  {t:"SDK (Software Development Kit)",d:"A collection of tools, libraries, and documentation for building software for a specific platform."},
+  {t:"Compile",d:"Converting human-readable source code into machine code all at once before running \u2014 used by languages like C, Swift, and Go."},
+  {t:"Interpreter",d:"A program that executes code line by line without prior compilation. Used by Python and JavaScript."},
+  {t:"Runtime",d:"The environment that runs code. Node.js is a JavaScript runtime; the Python interpreter is a Python runtime."},
+  {t:"Debug",d:"The process of finding and fixing errors (bugs) in code."},
+  {t:"Bug",d:"An error, flaw, or unintended behavior in software."},
+  {t:"Syntax Error",d:"A code grammar mistake that prevents the program from running \u2014 like a missing parenthesis or misspelled keyword."},
+  {t:"Runtime Error",d:"A problem that occurs while the program is running, causing it to crash \u2014 like trying to divide by zero."},
+  {t:"Logic Error",d:"When code runs without crashing but produces the wrong result \u2014 the hardest bug to find because nothing obviously breaks."},
+  {t:"Log / Logging",d:"Recording events, errors, or information during program execution. Levels: Debug, Info, Warning, Error, Critical."},
+  // ── Programming Languages ──
+  {t:"Python",d:"A high-level, interpreted language known for readability. Used for data science, AI/ML, automation, web development, and data engineering."},
+  {t:"JavaScript",d:"A high-level, interpreted language originally for browsers, now everywhere. Web development (frontend and backend via Node.js), mobile, and desktop apps."},
+  {t:"Swift",d:"Apple\u2019s modern programming language for building apps on iOS, macOS, watchOS, and tvOS."},
+  {t:"Java",d:"A compiled, object-oriented language running on a virtual machine (JVM). Used for Android apps, enterprise software, and backend services."},
+  {t:"C",d:"A low-level, compiled language providing direct hardware access. Used for operating systems, embedded systems, and performance-critical applications."},
+  {t:"C# (C Sharp)",d:"A Microsoft language for Windows applications, games (Unity), and enterprise software."},
+  {t:"TypeScript",d:"A superset of JavaScript adding static typing \u2014 catches type mismatches before runtime in large applications."},
+  {t:"Go (Golang)",d:"A compiled language by Google designed for simplicity and concurrency. Used for backend services, DevOps tools, and cloud infrastructure."},
+  {t:"R",d:"A programming language designed for statistical computing and data visualization."},
+  {t:"Scala",d:"A language combining object-oriented and functional programming on the JVM. Apache Spark is written in it."},
+  {t:"SQL (Structured Query Language)",d:"A language for managing and querying relational databases \u2014 one of the most used in the data industry. Pronounced \u2018sequel\u2019 or \u2018S-Q-L.\u2019"},
+  {t:"HTML (HyperText Markup Language)",d:"The standard markup language for creating web pages. Not a programming language \u2014 it structures content but has no logic."},
+  {t:"CSS (Cascading Style Sheets)",d:"A stylesheet language describing how HTML elements look \u2014 colors, layout, fonts, spacing."},
+  {t:"Markdown",d:"A lightweight markup language for formatting plain text using symbols like # for headings, ** for bold, - for bullets."},
+  {t:"Shell Scripting",d:"Writing programs using shell commands (Bash, Zsh) to automate tasks and system administration."},
+  // ── Terminal & Commands ──
+  {t:"Terminal",d:"A text-based interface for interacting with your computer through typed commands \u2014 like talking directly to your computer\u2019s brain instead of clicking on its face."},
+  {t:"Command Line Interface (CLI)",d:"A way to interact with software by typing text commands. The opposite of a GUI (Graphical User Interface) which uses mouse and windows."},
+  {t:"Shell",d:"The program that interprets and executes commands typed in the terminal. If the terminal is the window, this is the person on the other side."},
+  {t:"Bash (Bourne Again Shell)",d:"A widely-used command interpreter and the default shell on most Linux systems and older Macs."},
+  {t:"Zsh (Z Shell)",d:"An extended shell with better tab completion and spelling correction \u2014 the default on macOS since Catalina (2019). 99% compatible with Bash."},
+  {t:"PowerShell",d:"Microsoft\u2019s shell and scripting language for Windows \u2014 more powerful than the older Command Prompt."},
+  {t:"Flag / Option",d:"A modifier that changes how a terminal command behaves, prefixed with - or --. Examples: -v for verbose, --help for documentation."},
+  {t:"Argument",d:"Data passed to a terminal command telling it what to operate on \u2014 the filename in 'cat myfile.txt'."},
+  {t:"Pipe ( | )",d:"An operator sending the output of one command as input to another. Example: ls | grep '.txt' lists files then filters for .txt."},
+  {t:"Redirect ( > and >> )",d:"Operators sending command output to a file. > overwrites; >> appends."},
+  {t:"Environment Variable",d:"A named value stored in the OS accessible to all programs. Common: $HOME, $PATH, $USER."},
+  {t:"PATH (Environment Variable)",d:"A list of directories where the shell looks for executable programs when you type a command name."},
+  {t:"sudo",d:"Super User Do \u2014 executes a command with administrator (root) privileges. Can modify system files \u2014 use carefully!"},
+  {t:"pwd",d:"A terminal command that prints the current working directory \u2014 tells you where you are."},
+  {t:"ls",d:"A terminal command that lists directory contents. Add -la for a detailed list with hidden files."},
+  {t:"cd",d:"A terminal command to change directory. 'cd ..' goes up one level, 'cd ~' goes home."},
+  {t:"grep",d:"A terminal command that searches for text patterns inside files. Add -r for recursive search."},
+  {t:"chmod",d:"A terminal command that changes file permissions. 'chmod +x script.sh' makes a file executable."},
+  {t:"curl",d:"A terminal command for transferring data from a URL \u2014 commonly used to test APIs."},
+  {t:"kill",d:"A terminal command that terminates a running process by its ID. 'kill -9' force-kills."},
+  // ── Networking ──
+  {t:"Network",d:"A group of interconnected computers that can communicate and share resources."},
+  {t:"Internet",d:"The global network of interconnected computer networks using TCP/IP protocols."},
+  {t:"Protocol",d:"A set of rules governing how data is transmitted over a network. Examples: HTTP, HTTPS, FTP, SSH, TCP, UDP."},
+  {t:"IP Address",d:"A numerical label assigned to each device on a network for identification \u2014 like a phone number for computers."},
+  {t:"Public IP Address",d:"An IP address visible on the public internet, assigned by your ISP."},
+  {t:"Private IP Address",d:"An IP address used within a local network, not reachable from the internet. Ranges start with 10.x, 172.16.x, or 192.168.x."},
+  {t:"Loopback Address (Localhost)",d:"The special IP 127.0.0.1 that always refers to the current device itself. Used for testing locally."},
+  {t:"Port",d:"A numbered endpoint (0-65535) identifying a service on a device \u2014 IP is the building address, port is the apartment number. Common: 22 (SSH), 80 (HTTP), 443 (HTTPS)."},
+  {t:"DNS (Domain Name System)",d:"Translates human-readable domain names to IP addresses \u2014 a phone book for the internet. google.com becomes 142.250.80.46."},
+  {t:"URL (Uniform Resource Locator)",d:"The complete address of a resource on the internet, including protocol, domain, and path."},
+  {t:"HTTP",d:"HyperText Transfer Protocol \u2014 for transferring web pages and data. Not encrypted \u2014 data is visible to eavesdroppers."},
+  {t:"HTTPS",d:"HTTP with encryption (TLS/SSL) for secure communication. The lock icon in your browser means this is in use."},
+  {t:"Status Code",d:"A three-digit HTTP response number: 2xx = success (200 OK), 4xx = client error (404 Not Found), 5xx = server error (500)."},
+  {t:"Client",d:"Software or device that requests services from a server \u2014 a web browser, mobile app, or curl command."},
+  {t:"Server",d:"A computer or program that provides services to clients \u2014 listens for requests and sends responses."},
+  {t:"NAT (Network Address Translation)",d:"A router mapping multiple private IPs to one public IP \u2014 like a front desk routing calls internally. Provides security since internal devices aren\u2019t directly reachable."},
+  {t:"Router",d:"A device forwarding data between networks, typically connecting your home network to the internet."},
+  {t:"Ping",d:"A utility testing network connectivity by sending packets and measuring response time."},
+  {t:"TCP (Transmission Control Protocol)",d:"A reliable protocol ensuring data arrives complete and in order \u2014 used when accuracy matters."},
+  {t:"UDP (User Datagram Protocol)",d:"A fast but unreliable protocol that doesn\u2019t guarantee delivery \u2014 used for video streaming and gaming."},
+  // ── Security ──
+  {t:"Firewall",d:"A security system monitoring and controlling network traffic based on rules \u2014 like a security guard checking everyone at the entrance."},
+  {t:"Encryption",d:"Converting data into a coded format only authorized parties can decode \u2014 like a locked box only the keyholder can open."},
+  {t:"Symmetric Encryption",d:"Encryption where the same key encrypts and decrypts the data."},
+  {t:"Asymmetric Encryption",d:"Encryption using a key pair: a public key encrypts, only the matching private key decrypts. Used in HTTPS and SSH."},
+  {t:"TLS/SSL",d:"Protocols providing encrypted network communication. TLS is the modern successor to SSL. The \u2018S\u2019 in HTTPS."},
+  {t:"Authentication",d:"Verifying identity \u2014 proving you are who you say you are. Methods: passwords, tokens, biometrics."},
+  {t:"Authorization",d:"Determining what an authenticated user is allowed to do \u2014 which doors can you open after showing your ID?"},
+  {t:"Single Sign-On (SSO)",d:"Log in once and access multiple systems without logging in again \u2014 like a festival wristband."},
+  {t:"MFA / 2FA",d:"Multi-Factor Authentication \u2014 requiring two or more verification methods (password plus phone code) to prove identity."},
+  {t:"Token (Security)",d:"A piece of data representing identity or permissions. API keys are long-lived; OAuth tokens are temporary."},
+  {t:"API Key",d:"A secret string identifying an application when calling an API. Never expose in public code or commit to GitHub."},
+  {t:"OAuth",d:"A protocol letting one app access another on your behalf without sharing your password \u2014 like a valet key giving limited access."},
+  {t:"Service Principal",d:"A non-human machine account for automated system-to-system connections that keeps working regardless of staff changes."},
+  {t:"SSH (Secure Shell)",d:"A cryptographic protocol for secure remote access to computers. Uses port 22."},
+  {t:"SSH Key",d:"A cryptographic key pair (public + private) for SSH authentication. More secure than passwords."},
+  {t:"VPN (Virtual Private Network)",d:"An encrypted tunnel between your device and another network. Commercial VPNs hide activity from ISPs; mesh VPNs connect your own devices."},
+  {t:"Virtual Network (VNet)",d:"A private, isolated section of a cloud network \u2014 your traffic stays inside your private space."},
+  {t:"Tailscale",d:"A mesh VPN creating secure encrypted connections between your devices. Free for personal use, works through firewalls."},
+  {t:"Port Forwarding",d:"Configuring a router to send incoming traffic on a specific port to a specific device. Exposes you to the internet \u2014 VPN is safer."},
+  {t:"Malware",d:"Malicious software: viruses, worms, trojans, ransomware, spyware."},
+  {t:"Vulnerability",d:"A weakness in software that can be exploited by attackers."},
+  // ── Dev Tools ──
+  {t:"IDE (Integrated Development Environment)",d:"Software providing comprehensive development tools in one place \u2014 code editor, debugger, compiler. Examples: Xcode, VS Code, PyCharm."},
+  {t:"Visual Studio Code (VS Code)",d:"Microsoft\u2019s free, popular, extensible code editor \u2014 the most widely used among developers."},
+  {t:"Xcode",d:"Apple\u2019s IDE for all Apple platforms. Includes code editor, Interface Builder, iOS Simulator, compilers, and App Store submission."},
+  {t:"Notebook (Data Science)",d:"An interactive document for writing code, running it, seeing results, and adding notes in one place."},
+  {t:"Debugger",d:"A tool that pauses program execution so you can inspect state and find bugs."},
+  {t:"Linter",d:"A tool analyzing code for errors, style issues, and best practices without running it."},
+  {t:"Docker",d:"A platform for running applications in isolated containers."},
+  {t:"Container",d:"A lightweight package containing everything needed to run software \u2014 more efficient than a full VM."},
+  {t:"Virtual Machine (VM)",d:"A complete computer emulated in software, running its own OS. Heavier than containers but fully isolated."},
+  // ── Package Managers ──
+  {t:"Package Manager",d:"A tool that automates installing, updating, and managing software packages and their dependencies."},
+  {t:"Homebrew",d:"The most popular package manager for macOS."},
+  {t:"npm (Node Package Manager)",d:"The package manager for JavaScript and Node.js."},
+  {t:"Node.js",d:"A JavaScript runtime letting JavaScript run outside browsers. Used for servers, CLI tools, and build tools."},
+  {t:"pip",d:"The package manager for Python."},
+  {t:"Semantic Versioning (SemVer)",d:"Versioning scheme: MAJOR.MINOR.PATCH (e.g., 2.1.3). Major = breaking changes, Minor = new features, Patch = bug fixes."},
+  // ── Cloud ──
+  {t:"Cloud Computing",d:"Delivering computing services over the internet instead of owning hardware. Pay for what you use, like a utility bill."},
+  {t:"Cloud Provider",d:"A company offering cloud services: AWS (Amazon), Azure (Microsoft), GCP (Google)."},
+  {t:"Cluster",d:"A group of computers working together. When a task is too large for one, a cluster splits the work \u2014 like a team carrying a piano."},
+  {t:"Compute",d:"The processing power doing the work \u2014 CPUs, GPUs, virtual machines. \u2018Compute costs\u2019 = processing costs."},
+  {t:"VPS (Virtual Private Server)",d:"A virtual machine with a public IP directly exposed. Requires careful security since there\u2019s no NAT protection."},
+  {t:"IaaS (Infrastructure as a Service)",d:"Cloud: provider gives you VMs, storage, networking. You manage OS and apps."},
+  {t:"PaaS (Platform as a Service)",d:"Cloud: provider manages infrastructure; you just deploy your app."},
+  {t:"SaaS (Software as a Service)",d:"Complete apps delivered over the internet. Examples: Google Docs, Salesforce, Slack."},
+  {t:"Serverless",d:"Cloud where the provider manages all infrastructure. \u2018Serverless\u2019 doesn\u2019t mean no servers \u2014 you just don\u2019t think about them."},
+  // ── Web ──
+  {t:"Web Application",d:"An application running in a web browser, accessed through a URL."},
+  {t:"Frontend",d:"The client-side part users see. Built with HTML, CSS, JavaScript, and frameworks like React."},
+  {t:"Backend",d:"The server-side part handling logic, databases, and APIs. Built with Node.js, Python, Ruby, Java, or Go."},
+  {t:"Full Stack",d:"Development covering both frontend and backend."},
+  {t:"React",d:"A JavaScript library by Meta for building user interfaces \u2014 one of the most popular frontend frameworks."},
+  {t:"Static Site",d:"A website with fixed content that\u2019s the same for every visitor."},
+  {t:"Dynamic Site",d:"A website generating content based on user requests, database queries, or login status."},
+  {t:"Webhook",d:"An HTTP callback that sends data to a URL when an event occurs \u2014 an automated notification."},
+  // ── Mobile ──
+  {t:"Native App",d:"An app built for one platform using its official tools \u2014 Swift/Xcode for iOS, Kotlin/Java for Android."},
+  {t:"Cross-Platform Development",d:"Building apps for multiple platforms from one codebase using React Native or Flutter."},
+  {t:"SwiftUI",d:"Apple\u2019s modern declarative framework for building UIs across Apple platforms."},
+  {t:"UIKit",d:"Apple\u2019s older imperative framework for iOS interfaces \u2014 still widely used."},
+  {t:"Push Notification",d:"A message from a server appearing on a device even when the app isn\u2019t open."},
+  {t:"TestFlight",d:"Apple\u2019s platform for distributing beta iOS apps to testers."},
+  // ── Microsoft Ecosystem ──
+  {t:"Microsoft 365",d:"Microsoft\u2019s subscription: Word, Excel, PowerPoint, Outlook, Teams, OneDrive, SharePoint."},
+  {t:"Microsoft Entra ID",d:"Microsoft\u2019s identity management service (formerly Azure AD) \u2014 manages who you are and what you can access."},
+  {t:"Power Platform",d:"Microsoft\u2019s low-code suite: Power Apps, Power Automate, Power BI, Copilot Studio, Power Pages."},
+  {t:"Power BI",d:"Microsoft\u2019s analytics and data visualization platform for interactive reports and dashboards."},
+  {t:"Dataverse",d:"Microsoft\u2019s cloud data platform for Power Platform apps with built-in security and business logic."},
+  {t:"SharePoint",d:"Microsoft\u2019s document management and intranet platform."},
+  {t:"Azure",d:"Microsoft\u2019s cloud computing platform with VMs, databases, storage, networking, and AI services."},
+  {t:".NET",d:"Microsoft\u2019s free, open-source platform for building web, mobile, desktop, and cloud applications."},
+  // ── Automation ──
+  {t:"Cron",d:"A Unix time-based job scheduler \u2014 an alarm clock for tasks. Five fields: minute, hour, day, month, weekday."},
+  {t:"Cron Job",d:"A scheduled task running automatically at set times \u2014 like a backup script running nightly."},
+  // ── Data Formats ──
+  {t:"JSON",d:"JavaScript Object Notation \u2014 a lightweight key-value data format widely used for APIs and config files."},
+  {t:"YAML",d:"A human-readable config format using indentation. More readable than JSON but whitespace-sensitive."},
+  {t:"CSV (Comma-Separated Values)",d:"A simple tabular format where values are separated by commas \u2014 very common for data exchange."},
+  {t:"Environment File (.env)",d:"A file containing secrets like API keys and passwords. Add to .gitignore \u2014 never commit to version control."},
+  {t:"Base64",d:"An encoding scheme representing binary data as plain text \u2014 used for sending binary through text channels."},
+  // ── DevOps ──
+  {t:"DevOps",d:"Practices combining development and operations for faster, more reliable software delivery."},
+  {t:"Infrastructure as Code (IaC)",d:"Managing servers and networks through config files rather than manual setup. Tools: Terraform, Ansible."},
+  {t:"Monitoring",d:"Observing system health and performance in real time. Tools: Prometheus, Grafana, Datadog."},
+  {t:"Uptime",d:"The percentage of time a system is available. 99.9% still means ~8.7 hours of downtime per year."},
+  {t:"High Availability (HA)",d:"System design minimizing downtime through redundancy \u2014 if one component fails, a backup takes over."},
+  {t:"Incident",d:"An unplanned event causing service disruption \u2014 something broke in production."},
+  {t:"Postmortem",d:"A review after an incident to understand causes and prevent recurrence."},
+    ]
+  },
+  {
+    id: "git",
+    name: "Git & Engineering Teamwork",
+    desc: "Version control, branches, PRs, team roles, agile, code review, and engineering culture",
+    icon: "Git",
+    iconClass: "deck-icon-git",
+    progressClass: "deck-progress-git",
+    cards: [
+  // ── Version Control Basics ──
+  {t:"Version Control System (VCS)",d:"Software tracking changes to files over time, allowing collaboration and history management."},
+  {t:"Git",d:"The most widely used distributed version control system. Created by Linus Torvalds in 2005. Tracks every change, enables branching/merging."},
+  {t:"Repository (Repo)",d:"A project folder tracked by Git with all files and their complete change history. Local repos are on your computer; remote repos are on GitHub."},
+  {t:"Clone",d:"Creating a local copy of a remote repository with full history. You do this once per project; after that use pull for updates."},
+  {t:"Commit",d:"A snapshot recording what changed, who changed it, when, and why \u2014 like a save point. Every commit gets a unique hash ID."},
+  {t:"Branch",d:"A parallel version of code diverging from the main line \u2014 work without affecting the primary codebase until you merge."},
+  {t:"Merge",d:"Combining changes from one branch into another \u2014 how your work becomes part of the main codebase."},
+  {t:"Pull (Git)",d:"Downloading the latest changes from a remote repo and merging them into your local copy."},
+  {t:"Push",d:"Uploading local commits to a remote repo so teammates can see them. Commits only exist locally until you push."},
+  {t:"Pull Request (PR)",d:"A formal request to merge your branch with code review. Teammates review, discuss, and approve before merging. GitLab calls these \u2018merge requests.\u2019"},
+  {t:".gitignore",d:"A file telling Git which files to ignore \u2014 secrets (.env), dependencies (node_modules), and build output should never be committed."},
+  {t:"GitHub",d:"A web platform (owned by Microsoft) for hosting Git repos with pull requests, issues, actions, and branch protection."},
+  // ── Git Deeper ──
+  {t:"Staging Area (Git)",d:"A holding area where you choose which changes go into your next commit. Like a checkout conveyor belt \u2014 only what\u2019s on the belt gets scanned."},
+  {t:"git add",d:"Moves changes from working directory to staging area. 'git add .' stages everything; 'git add file.py' stages one file."},
+  {t:"git status",d:"Shows what\u2019s changed, staged, and untracked in your working directory."},
+  {t:"Working Directory (Git)",d:"Your files as you see them \u2014 the first of three Git states: working directory \u2192 staging area \u2192 repository."},
+  {t:"Fetch (Git)",d:"Download info about remote changes without merging \u2014 look at the menu without ordering. Unlike pull which downloads AND merges."},
+  {t:"git diff",d:"Shows exact line-by-line changes. 'git diff --staged' shows what\u2019s staged but not yet committed."},
+  // ── GitHub Features ──
+  {t:"Issue (GitHub)",d:"A tracked work item (bug, feature, task) with title, description, labels, assignees, and comments \u2014 like a sticky note with a conversation."},
+  {t:"README",d:"A file (README.md) at the root describing the project, setup, and usage. GitHub shows it automatically \u2014 the front door of any project."},
+  {t:"Branch Protection Rules",d:"GitHub settings preventing direct pushes to important branches, requiring PRs and approvals."},
+  // ── Branch Strategies ──
+  {t:"Main Branch",d:"The primary branch \u2014 the official, deployable version. Nobody pushes directly; all changes go through pull requests."},
+  {t:"Feature Branch",d:"A branch for a new feature (e.g., feature/add-search-bar). Keeps work isolated until ready."},
+  {t:"Hotfix Branch",d:"A branch for urgent production fixes that can\u2019t wait (e.g., hotfix/patch-security-vuln)."},
+  // ── Merge Strategies ──
+  {t:"Merge Commit",d:"The default merge creating a commit that ties branches together, preserving full history of both."},
+  {t:"Squash and Merge",d:"Combines all branch commits into one on main. Cleaner history but loses individual details. Most common for feature branches."},
+  {t:"Rebase",d:"Replaying your commits on top of latest main for linear history. Can cause conflicts resolved one by one."},
+  // ── Conflicts ──
+  {t:"Merge Conflict",d:"When two people change the same part of the same file. Git marks it with <<<<<<< and >>>>>>> markers you edit manually, then stage and commit."},
+  // ── Stashing ──
+  {t:"Stash (Git)",d:"Temporarily saving uncommitted changes. 'git stash' saves; 'git stash pop' restores \u2014 like fridging half-chopped vegetables when the doorbell rings."},
+  // ── Tags ──
+  {t:"Tag (Git)",d:"A permanent label on a specific commit, marking a release version (v1.0.0). Like a bookmark in a book that keeps getting longer."},
+  // ── Undoing ──
+  {t:"git reset",d:"Undo commits: --soft keeps changes staged, --mixed keeps them unstaged, --hard discards all (dangerous). HEAD~1 = one commit back."},
+  {t:"git revert",d:"Creates a NEW commit undoing a previous one. Safe for shared branches because it adds history rather than rewriting."},
+  {t:"git log",d:"Shows commit history. Options: --oneline (compact), --graph (branch visualization), --author, -5 (last 5)."},
+  // ── Team Tools ──
+  {t:"Jira",d:"The most widely used enterprise project management tool. Tracks issues, sprints, releases."},
+  {t:"Linear",d:"A modern, faster alternative to Jira. Popular with startups for project tracking."},
+  {t:"Slack",d:"The dominant team communication tool in tech. Channels, threads, and integrations with dev tools."},
+  {t:"Figma",d:"The dominant design tool. Engineers reference Figma designs when building UIs."},
+  {t:"Confluence",d:"Atlassian\u2019s wiki for team documentation, often paired with Jira."},
+  // ── Team Roles ──
+  {t:"Software Engineer / Developer",d:"The core role: writes code, reviews code, fixes bugs, builds features."},
+  {t:"Senior Engineer",d:"Makes architectural decisions, mentors juniors, handles complex problems, leads technical design."},
+  {t:"Tech Lead",d:"A senior engineer coordinating technical direction. Still codes but also decides how things are built."},
+  {t:"Engineering Manager",d:"Manages people, not code \u2014 hiring, performance reviews, career growth, removing blockers."},
+  {t:"Product Manager (PM)",d:"Decides what to build and why based on business needs and user feedback. Not an engineer."},
+  {t:"QA Engineer / SDET",d:"Focused on testing \u2014 automated tests, finding bugs, ensuring quality before release."},
+  {t:"DevOps / Platform Engineer",d:"Manages infrastructure, deployment pipelines, monitoring, and production systems."},
+  {t:"Squad / Feature Team",d:"A cross-functional group (engineers, PM, designer) owning a product area like \u2018Search\u2019 or \u2018Payments.\u2019"},
+  {t:"On-Call Rotation",d:"Engineers taking turns responding to production incidents outside business hours, rotated weekly."},
+  // ── Agile ──
+  {t:"Agile",d:"Development principles favoring short cycles, frequent delivery, and adapting to change \u2014 build small, get feedback, adjust, repeat."},
+  {t:"Sprint",d:"A fixed period (usually 2 weeks) where a team commits to completing work, ending with a demo and next sprint planning."},
+  {t:"Daily Standup",d:"A brief daily meeting (10-15 min): what I did yesterday, what I\u2019m doing today, any blockers. For coordination, not reporting."},
+  {t:"Retrospective",d:"A meeting after a sprint: what went well, what didn\u2019t, what to improve."},
+  {t:"User Story",d:"A feature from the user\u2019s view: \u2018As a [user], I want [action] so that [benefit].\u2019"},
+  {t:"Epic",d:"A large body of work containing multiple stories. Example: \u2018User Authentication\u2019 includes login, registration, password reset."},
+  {t:"Backlog",d:"The full prioritized list of all possible work. The team pulls from the top into each sprint."},
+  {t:"Story Points",d:"A relative measure of effort (not hours). Common scales: Fibonacci (1,2,3,5,8,13) or t-shirt sizes."},
+  {t:"Kanban Board",d:"A visual board: To Do \u2192 In Progress \u2192 In Review \u2192 Done."},
+  // ── Code Review ──
+  {t:"Code Review",d:"Teammates reading your code before merging. Serves knowledge sharing, consistency, quality, mentorship, and collective ownership."},
+  {t:"LGTM",d:"\u2018Looks Good To Me\u2019 \u2014 approval shorthand in code review."},
+  {t:"nit",d:"Short for \u2018nitpick\u2019 \u2014 a minor non-blocking suggestion in a review."},
+  {t:"WIP",d:"\u2018Work In Progress\u2019 \u2014 code not ready for review yet."},
+  // ── CI/CD ──
+  {t:"Continuous Integration (CI)",d:"Automated build and test on every push/PR. If tests fail, the PR can\u2019t merge."},
+  {t:"Continuous Deployment (CD)",d:"Auto-deploying code to staging or production after tests pass."},
+  {t:"CI/CD",d:"The combined practice of automating build, test, and deploy. Tools: GitHub Actions, Jenkins, GitLab CI."},
+  {t:"GitHub Actions",d:"GitHub\u2019s built-in CI/CD platform \u2014 runs tests, builds, and deploys automatically on push."},
+  // ── Environments ──
+  {t:"Development Environment (Dev)",d:"Your personal computer where you build and test. Only you see it."},
+  {t:"Staging Environment",d:"A shared environment mirroring production for testing before release."},
+  {t:"Production Environment (Prod)",d:"The live environment real users interact with. Never test here."},
+  // ── Documentation ──
+  {t:"Architecture Decision Record (ADR)",d:"A document explaining why a major technical decision was made \u2014 prevents re-debating later."},
+  {t:"Runbook",d:"Step-by-step instructions for operational tasks: \u2018how to restart the payment service.\u2019"},
+  // ── Engineering Vocabulary ──
+  {t:"Ship",d:"Release code to production \u2014 \u2018we shipped the feature\u2019 means it\u2019s live."},
+  {t:"Deploy",d:"Put code onto a server so it\u2019s running and accessible."},
+  {t:"Rollback",d:"Reverting to a previous version because the new one has problems."},
+  {t:"Regression",d:"A bug from a recent change \u2014 something that used to work now doesn\u2019t."},
+  {t:"Refactor",d:"Rewriting code to improve structure without changing what it does."},
+  {t:"Tech Debt",d:"Shortcuts in code needing future fixing \u2014 like a credit card that accumulates interest."},
+  {t:"Scope Creep",d:"A project gradually expanding beyond its original plan."},
+  {t:"Blocker",d:"Something preventing progress \u2014 \u2018I need database access.\u2019"},
+  {t:"Dependency",d:"Something your code relies on \u2014 a library, service, or another team\u2019s code."},
+  {t:"Breaking Change",d:"A change causing existing code or features to stop working."},
+  {t:"Backward Compatible",d:"A change that works with older versions \u2014 nothing breaks."},
+  {t:"Edge Case",d:"An unusual scenario code must handle \u2014 like emoji in a name field."},
+  {t:"Happy Path",d:"The expected flow when everything goes right \u2014 no errors, valid input."},
+  {t:"Deprecated",d:"Marked as outdated and scheduled for removal. Still works but don\u2019t use for new work."},
+  {t:"Spike",d:"A short investigation to answer a technical question before committing to full implementation."},
+  {t:"Greenfield",d:"A brand-new project starting from a blank slate."},
+  {t:"Brownfield",d:"Working on an existing codebase with legacy decisions and tech debt."},
+  {t:"Bikeshedding",d:"Spending excessive time on trivial details while ignoring important things."},
+  {t:"Rubber Duck Debugging",d:"Explaining your problem out loud (even to an object) to think through it. Articulating often reveals the solution."},
+  {t:"Dogfooding",d:"Using your own product internally \u2014 \u2018we dogfood our own tools.\u2019"},
+  {t:"SLA (Service Level Agreement)",d:"A contractual commitment to uptime or response time \u2014 e.g., 99.9% uptime."},
+  {t:"Monorepo",d:"A single repository containing code for multiple projects or services."},
+  {t:"Microservice",d:"A small independent service doing one thing, communicating with others via APIs."},
+  {t:"Monolith",d:"A single large application where everything is in one codebase deployed together."},
+    ]
+  },
+  {
+    id: "data",
+    name: "Data & Databases",
+    desc: "Databases, SQL, data architecture, lakehouse, pipelines, ETL, formats, and governance",
+    icon: "DB",
+    iconClass: "deck-icon-data",
+    progressClass: "deck-progress-data",
+    cards: [
+  // ── Databases ──
+  {t:"Database",d:"An organized collection of structured data stored electronically \u2014 a filing cabinet for information you can efficiently find, update, and retrieve."},
+  {t:"Table (Database)",d:"The basic data unit: rows are records (one customer), columns are attributes (name, amount). Like an Excel worksheet."},
+  {t:"Schema (Database)",d:"A table\u2019s blueprint defining columns, data types, and rules."},
+  {t:"Schema Enforcement",d:"The system rejects data that doesn\u2019t match the expected structure \u2014 if a column expects numbers, it refuses text."},
+  {t:"Schema Evolution",d:"Changing a table\u2019s structure over time (adding columns) without breaking existing dependencies."},
+  {t:"Relational Database",d:"Data organized into tables linked by relationships. Examples: PostgreSQL, MySQL, SQLite."},
+  {t:"SQL (Structured Query Language)",d:"The standard language for managing and querying relational databases. Pronounced \u2018sequel\u2019 or \u2018S-Q-L.\u2019"},
+  {t:"Query",d:"A request for information from a database \u2014 asking the database to find, calculate, or summarize specific data."},
+  {t:"NoSQL",d:"Databases not using traditional tables. Types: document stores (MongoDB), key-value (Redis), graph (Neo4j)."},
+  {t:"PostgreSQL",d:"A powerful, open-source relational database widely used in production."},
+  {t:"SQLite",d:"A lightweight, file-based database requiring no server \u2014 the entire database is one file."},
+  {t:"Redis",d:"An in-memory key-value store for caching \u2014 extremely fast because data lives in RAM."},
+  {t:"CRUD",d:"The four basic database operations: Create, Read, Update, Delete."},
+  {t:"Index (Database)",d:"A structure speeding up data retrieval \u2014 like a book index helping you find topics without reading every page."},
+  {t:"Primary Key",d:"A unique identifier for each row. No two rows share the same value \u2014 like a Social Security number for data."},
+  {t:"Foreign Key",d:"A field in one table linking to the primary key of another, connecting related data across tables."},
+  {t:"ORM (Object-Relational Mapping)",d:"Querying databases using programming code instead of raw SQL \u2014 the ORM translates your code into database queries."},
+  // ── Data Formats ──
+  {t:"Parquet",d:"A columnar storage format for big data. Stores by columns (not rows like CSV), making analytical queries much faster when only certain columns are needed."},
+  {t:"CSV",d:"Comma-Separated Values \u2014 a simple tabular format where values are separated by commas. Very common for data exchange."},
+  {t:"JSON",d:"JavaScript Object Notation \u2014 a lightweight key-value data format used for APIs and configs."},
+  // ── Data Architecture ──
+  {t:"Structured Data",d:"Data fitting neatly into rows and columns \u2014 spreadsheets, database tables, transaction records."},
+  {t:"Unstructured Data",d:"Data without row/column format \u2014 PDFs, emails, images, chat logs, audio. Harder for computers but often valuable."},
+  {t:"Semi-Structured Data",d:"Data between structured and unstructured \u2014 JSON, XML, logs have some organization but aren\u2019t rigid tables."},
+  {t:"Data Warehouse",d:"A system for analyzing large volumes of structured data \u2014 optimized for complex queries and reports."},
+  {t:"Data Lake",d:"Storage holding vast raw data in any format. Cheap and flexible but can become a messy \u2018data swamp.\u2019"},
+  {t:"Lakehouse",d:"Architecture combining data lake + warehouse into one system \u2014 cheap flexible storage with warehouse-level structure and governance."},
+  {t:"Delta Lake",d:"An open-source storage layer adding ACID transactions, schema enforcement, and versioning on top of cloud storage."},
+  {t:"Metadata",d:"Data about data \u2014 table names, creators, update times, columns, permissions. Essential for governance."},
+  {t:"Data Lineage",d:"A record of where data came from, how it was transformed, and where it went \u2014 a supply chain for data."},
+  {t:"Data Governance",d:"Policies ensuring data is accurate, secure, and properly used. Who can access it? How long do we keep it?"},
+  {t:"Catalog",d:"In Databricks, the top of the data hierarchy. A catalog contains schemas, which contain tables \u2014 building \u2192 floors \u2192 rooms."},
+  {t:"DBU (Databricks Unit)",d:"Databricks\u2019 billing unit. Different workloads (SQL queries, model training, AI endpoints) consume DBUs at different rates."},
+  // ── Data Processing ──
+  {t:"ETL (Extract, Transform, Load)",d:"Pull data from a source, clean/reformat it, then store it. Like sorting laundry before putting it away."},
+  {t:"ELT (Extract, Load, Transform)",d:"Load raw data first, then transform in the destination. Like dumping laundry in the dresser and organizing later."},
+  {t:"Data Pipeline",d:"An automated sequence moving data between systems with transformations \u2014 like a factory assembly line."},
+  {t:"Batch Processing",d:"Handling data in large scheduled chunks \u2014 processing yesterday\u2019s transactions overnight."},
+  {t:"Streaming (Real-Time Processing)",d:"Handling data continuously as it arrives \u2014 processing each transaction instantly."},
+  {t:"ACID Transaction",d:"Four reliability properties: Atomicity (all or nothing), Consistency (valid states), Isolation (no interference), Durability (permanent). Like a bank transfer."},
+  {t:"Materialized View",d:"A pre-computed query result stored as a table, refreshed periodically \u2014 bake cakes in the morning to serve all day."},
+  {t:"Streaming Table",d:"A table continuously updated as new data arrives rather than on a schedule."},
+    ]
+  },
+  {
+    id: "ai",
+    name: "AI & Machine Learning",
+    desc: "Neural networks, LLMs, training, RAG, vectors, agents, prompt engineering, and AI tools",
+    icon: "AI",
+    iconClass: "deck-icon-ai",
+    progressClass: "deck-progress-ai",
+    cards: [
+  {t:"Artificial Intelligence (AI)",d:"Computer systems performing tasks requiring human intelligence \u2014 understanding language, recognizing patterns, making decisions, generating content."},
+  {t:"Machine Learning (ML)",d:"A subset of AI where systems learn from data rather than being explicitly programmed."},
+  {t:"Supervised Learning",d:"Teaching AI with labeled examples: \u2018this email is spam, this is not\u2019 \u2014 the system learns to classify new data."},
+  {t:"Unsupervised Learning",d:"AI finding patterns in data without labels \u2014 like sorting customers into groups based on behavior without defining the groups."},
+  {t:"Reinforcement Learning",d:"ML through trial and error with rewards for good outcomes and penalties for bad \u2014 like training a dog with treats."},
+  {t:"Deep Learning",d:"ML using neural networks with many layers \u2014 learns complex patterns from large amounts of data."},
+  {t:"Neural Network",d:"A computing system inspired by biological brains, with interconnected nodes in layers that process information."},
+  {t:"Large Language Model (LLM)",d:"A neural network trained on massive text data to understand and generate language. Examples: Claude, GPT-4, Llama, Gemini."},
+  {t:"Foundation Model",d:"A large general-purpose AI model adaptable for many tasks \u2014 like a broadly educated person who can specialize."},
+  {t:"Generative AI",d:"AI that creates new content (text, images, code, audio) rather than just analyzing existing data."},
+  {t:"Model (AI)",d:"The trained artifact that makes predictions or generates outputs \u2014 the mathematical representation of what was learned."},
+  {t:"Inference",d:"Using a trained model on new data. Asking Claude a question = inference."},
+  {t:"Training (AI)",d:"Teaching a model from scratch using large datasets \u2014 extremely expensive, potentially weeks on thousands of GPUs."},
+  {t:"Fine-Tuning",d:"Further training an already-trained model on domain-specific data \u2014 much faster and cheaper than training from scratch."},
+  {t:"RAG (Retrieval-Augmented Generation)",d:"Improving AI by first retrieving relevant info from a knowledge base, then feeding it as context \u2014 answers grounded in real data."},
+  {t:"Vector",d:"A list of numbers representing content\u2019s meaning. Similar content gets similar numbers \u2014 like GPS coordinates for meaning."},
+  {t:"Vector Search",d:"Finding relevant content by comparing vectors mathematically \u2014 convert a question to a vector and find closest matches."},
+  {t:"Embedding",d:"Converting content into vectors \u2014 turning \u2018refund policy\u2019 into numbers like [0.23, -0.87, 0.45, ...] for comparison."},
+  {t:"Evaluation (AI)",d:"Measuring AI performance: accuracy (correct?), groundedness (supported by data?), relevance (on-topic?), safety (appropriate?)."},
+  {t:"Hallucination",d:"When AI generates plausible-sounding but factually incorrect or fabricated information."},
+  {t:"Guardrails (AI)",d:"Rules restricting AI behavior to prevent unwanted outputs \u2014 like bumper rails in bowling."},
+  {t:"Token (AI)",d:"The basic text unit language models process \u2014 roughly 4 characters or 3/4 of a word. Models have token limits; APIs charge per token."},
+  {t:"Context Window",d:"The maximum text (in tokens) a model can process at once \u2014 the model\u2019s short-term memory."},
+  {t:"Prompt",d:"The input text given to a language model. Quality and specificity significantly affect response quality."},
+  {t:"Prompt Engineering",d:"Crafting effective prompts to get desired AI outputs without changing the model."},
+  {t:"System Prompt",d:"Instructions setting an AI\u2019s behavior, personality, and rules for an entire conversation."},
+  {t:"Temperature (AI)",d:"A randomness parameter: low (0.0-0.3) = deterministic; high (0.7-1.0) = creative and varied."},
+  {t:"Agent (AI)",d:"An AI taking autonomous actions for multi-step tasks \u2014 finding a report, summarizing it, and drafting an email."},
+  {t:"Tool Use / Function Calling",d:"AI\u2019s ability to call external functions or APIs to do things beyond text generation."},
+  {t:"MCP (Model Context Protocol)",d:"A standardized way for AI to connect to external tools and data \u2014 a universal adapter."},
+  {t:"Anthropic",d:"The AI safety company that created Claude."},
+  {t:"Claude",d:"Anthropic\u2019s AI assistant in Opus (most capable), Sonnet (balanced), and Haiku (fastest) versions."},
+  {t:"Claude Code",d:"Anthropic\u2019s terminal-based AI coding assistant that understands entire codebases, reads/writes files, and handles git."},
+    ]
+  },
+  {
+    id: "dbx",
+    name: "Databricks & Mosaic AI",
+    desc: "Lakehouse platform, Unity Catalog, Mosaic AI, agents, connectors, Power Platform, and enterprise data",
+    icon: "Dx",
+    iconClass: "deck-icon-dbx",
+    progressClass: "deck-progress-dbx",
+    cards: [
+  // Data Concepts
+  {t:"Artificial Intelligence (AI)",d:"Computer systems that perform tasks normally requiring human intelligence, like understanding language or generating text."},
+  {t:"Machine Learning (ML)",d:"A branch of AI where systems improve at tasks by learning from data, rather than following hand-written rules. The two main approaches are supervised learning (learning from labeled examples) and unsupervised learning (finding patterns without labels)."},
+  {t:"Supervised Learning",d:"Teaching an AI by showing it labeled examples \u2014 \u2018this email is spam, this one is not\u2019 \u2014 so it learns to classify new data it has not seen before. The \u2018supervised\u2019 part means a human provided the correct answers for the training data."},
+  {t:"Unsupervised Learning",d:"An AI finds patterns, groupings, or structure in data without being told what to look for \u2014 like sorting customers into groups based on purchasing behavior without anyone defining the groups in advance."},
+  {t:"Data Engineering",d:"The work of collecting, cleaning, organizing, and moving data so it can be used. Think of it like plumbing \u2014 data engineers build the pipes that carry data from where it is created to where it needs to go."},
+  {t:"Analytics",d:"Examining data to find patterns and make decisions \u2014 for example, building a chart showing sales by region."},
+  {t:"Data Science",d:"Using math and statistics to find insights in data."},
+  {t:"Database",d:"An organized collection of data stored and accessed electronically."},
+  {t:"Table",d:"A structured set of data organized in rows and columns, like a spreadsheet."},
+  {t:"Schema",d:"The blueprint of a table \u2014 what columns exist and what type of data goes in each (text, numbers, dates)."},
+  {t:"Schema Enforcement",d:"The system rejects data that does not match the table\u2019s blueprint."},
+  {t:"Schema Evolution",d:"The ability to change the structure of a table over time without breaking things."},
+  {t:"Structured Data",d:"Data that fits neatly into rows and columns like a spreadsheet."},
+  {t:"Unstructured Data",d:"Data without a predefined format \u2014 emails, PDFs, reports, images."},
+  {t:"Data Warehouse",d:"A system for analyzing organized, structured data. Fast for reports but expensive and rigid. Think of it like a well-organized library \u2014 great for finding things, expensive to maintain, only stores proper books."},
+  {t:"Data Lake",d:"Massive storage holding raw data in any format \u2014 spreadsheets, PDFs, images, audio, anything. Cheap and flexible but can become disorganized. Think of it like a giant storage warehouse."},
+  {t:"Lakehouse",d:"Combines a data lake and data warehouse. Cheap, flexible storage of a data lake with the structure, speed, and security of a data warehouse. One system instead of two."},
+  {t:"Metadata",d:"Information about the data itself \u2014 column names, descriptions, relationships between tables."},
+  {t:"Data Lineage",d:"A map showing where data came from and how it has been transformed \u2014 like a supply chain for data."},
+  {t:"Data Governance",d:"Rules controlling who can access what data, what they can do with it, and how changes are tracked. Think of it like a building\u2019s security system."},
+  {t:"Primary Key",d:"A column that uniquely identifies each row in a table \u2014 like a customer ID number where no two customers share the same number."},
+  {t:"Query",d:"A request to retrieve or manipulate data in a database \u2014 asking the database a question."},
+  {t:"SQL",d:"Structured Query Language \u2014 a standard language for asking questions of and managing databases."},
+  {t:"Index",d:"An organized, searchable structure that makes finding specific data faster, like an index in the back of a book."},
+  // Storage and Processing
+  {t:"ACID Transactions",d:"Four properties making data operations reliable: Atomicity (fully succeeds or fully fails), Consistency (valid state to valid state), Isolation (simultaneous users don\u2019t interfere), Durability (once saved, stays saved). Like a bank transfer \u2014 money moves completely or not at all."},
+  {t:"Cloud Object Storage",d:"Basic file storage from cloud providers like Azure Data Lake Storage \u2014 like a massive cheap hard drive in the cloud."},
+  {t:"Parquet",d:"A file format for storing data efficiently (like .docx for Word but designed for large datasets). Stores data by columns rather than rows, making it fast when only certain columns are needed."},
+  {t:"Transaction Log",d:"A detailed record of every change to the data \u2014 every addition, deletion, update. Like a bank\u2019s ledger recording every deposit and withdrawal."},
+  {t:"Delta Lake",d:"An open-source storage layer that adds ACID transactions, schema enforcement, versioning, and time travel on top of standard cloud object storage. The default table format in Databricks."},
+  {t:"Batch Processing",d:"Handling data in large chunks on a schedule \u2014 for example, processing yesterday\u2019s transactions overnight."},
+  {t:"Streaming",d:"Handling data continuously as it arrives in real time, rather than in scheduled batches."},
+  {t:"Time Travel",d:"The ability to query data as it existed at any previous point in time \u2014 useful for auditing, debugging, and undoing mistakes."},
+  {t:"ETL",d:"Extract, Transform, Load \u2014 clean data before storing it."},
+  {t:"ELT",d:"Extract, Load, Transform \u2014 store raw data first, clean it later."},
+  {t:"Data Pipeline",d:"An automated sequence of steps that moves data from one place to another, transforming it along the way. Like a factory assembly line \u2014 raw materials in, processed products out."},
+  {t:"Materialized View",d:"Pre-calculated results stored for fast access \u2014 the system does the math ahead of time so queries return instantly."},
+  {t:"Streaming Table",d:"A table continuously updated as data arrives in real time."},
+  {t:"Open Source",d:"The code is publicly available \u2014 anyone can inspect, use, or modify it. Reduces vendor lock-in."},
+  // Cloud and Infrastructure
+  {t:"Cloud Computing",d:"Renting computing power, storage, and services over the internet instead of owning physical hardware."},
+  {t:"Cloud Providers",d:"Companies that rent out computing power and storage over the internet \u2014 AWS (Amazon), Azure (Microsoft), GCP (Google)."},
+  {t:"Cluster",d:"A group of computers working together as one system to handle large workloads."},
+  {t:"Compute",d:"The processing power used to run programs \u2014 the \u2018brains\u2019 doing the work."},
+  {t:"Serverless",d:"Computing resources managed entirely by the platform \u2014 no servers to set up or maintain, and the system can scale to zero (no cost when idle)."},
+  {t:"GPU",d:"Graphics Processing Unit \u2014 specialized computer chips originally designed for graphics but now widely used for AI because they can do many calculations simultaneously."},
+  {t:"VNet (Virtual Network)",d:"A private, isolated section of a cloud network \u2014 like having a private office building within a shared building. Traffic stays inside the private space."},
+  {t:"VNet Injection",d:"Deploying Databricks inside the organization\u2019s own private network for security and compliance."},
+  {t:"API",d:"Application Programming Interface \u2014 a connection point that lets software systems talk to each other, like a waiter taking an order to the kitchen and bringing back the food."},
+  {t:"Endpoint",d:"A specific address where an AI model or service can be reached by other software."},
+  {t:"Connector",d:"A pre-built bridge letting one software tool talk to another without custom coding."},
+  {t:"SDK",d:"Software Development Kit \u2014 a set of tools developers use to build software for a specific platform."},
+  {t:"Deploy",d:"Making software available for people to use \u2014 moving it from development into production."},
+  {t:"Infrastructure",d:"The underlying computing hardware and software systems that everything runs on."},
+  {t:"Autoscaling",d:"Automatically adding or removing computing power based on demand \u2014 more resources when busy, fewer when idle."},
+  {t:"Scale-to-Zero",d:"The system shuts down completely when nobody is using it and starts back up when needed \u2014 no cost when idle."},
+  {t:"Azure Region",d:"A geographic location where Azure data centers operate \u2014 feature availability can vary by region."},
+  {t:"Private Link",d:"A way to access Azure services through a private connection that does not travel over the public internet."},
+  {t:"Latency",d:"Delay \u2014 the time it takes for a request to travel from sender to receiver and back."},
+  // AI and ML
+  {t:"Model",d:"A mathematical system trained on data that can make predictions or generate content \u2014 the \u2018brain\u2019 of an AI system."},
+  {t:"Training",d:"Teaching an AI system by feeding it data so it learns patterns."},
+  {t:"Fine-Tuning",d:"Adjusting an already-trained AI model to work better for a specific task or domain."},
+  {t:"Inference",d:"Using a trained model to generate answers \u2014 like an open-book exam where the AI reads relevant material before answering."},
+  {t:"LLM (Large Language Model)",d:"Very large AI models trained on massive amounts of text that can understand and generate human language. Examples: Claude (Anthropic), GPT (OpenAI), Llama (Meta)."},
+  {t:"Foundation Model",d:"A large, general-purpose AI model trained on massive data that can be adapted for many tasks. Like a broadly educated person who can then specialize."},
+  {t:"Generative AI",d:"AI that creates new content such as text, images, or code, rather than just classifying or sorting existing information."},
+  {t:"AI Agent",d:"An AI program that takes actions on its own to accomplish tasks \u2014 not just answering one question but performing multi-step workflows (find a report, summarize it, draft an email)."},
+  {t:"Prompt",d:"The instructions or question given to an AI to tell it what to do."},
+  {t:"Token",d:"Roughly one word of text. AI models process and price by tokens \u2014 both the input (question) and output (answer) are measured in tokens."},
+  {t:"Context Window",d:"The amount of text an AI model can consider at once \u2014 like the AI\u2019s short-term memory."},
+  {t:"Hallucination",d:"When AI generates plausible but wrong information \u2014 it sounds confident but is making things up."},
+  {t:"RAG (Retrieval-Augmented Generation)",d:"Making AI responses accurate by searching real documents first, giving the relevant information to the AI, then letting it answer based on actual data instead of guessing."},
+  {t:"Vector",d:"A list of numbers representing the meaning of text. Similar meanings get similar numbers \u2014 like GPS coordinates for meaning."},
+  {t:"Vector Search",d:"Comparing vectors (numerical representations of meaning) to find the most relevant content \u2014 meaning-based search rather than keyword-based."},
+  {t:"Embedding",d:"Converting text into vectors (lists of numbers representing meaning) so it can be compared mathematically."},
+  {t:"Chunking",d:"Breaking large documents into searchable pieces for AI retrieval. Too big and search is imprecise; too small and context is lost."},
+  {t:"Evaluation",d:"Systematically measuring AI quality with structured tests \u2014 not just eyeballing responses."},
+  {t:"Groundedness",d:"Whether an AI response is supported by retrieved data or fabricated. A grounded answer cites real sources; an ungrounded one is hallucinated."},
+  {t:"Guardrails",d:"Rules preventing unwanted AI behavior \u2014 like bumper rails in bowling, keeping the AI within acceptable boundaries."},
+  {t:"MCP (Model Context Protocol)",d:"A universal adapter standard for connecting AI to external tools and knowledge sources \u2014 like a universal power adapter that works in any country."},
+  {t:"AI-Powered Judges",d:"Another AI model that automatically grades an AI agent\u2019s responses \u2014 like a teacher grading homework."},
+  {t:"Synthetic Data",d:"Artificially generated data resembling real production data, used for testing AI systems without exposing real information."},
+  {t:"Prompt Engineering",d:"Crafting the instructions given to an AI to get better, more reliable results."},
+  // Security and Identity
+  {t:"Authentication",d:"Verifying someone\u2019s identity \u2014 proving \u2018you are who you say you are\u2019 before granting access."},
+  {t:"Authorization",d:"Determining what an authenticated user is allowed to do \u2014 which data they can see and which actions they can take."},
+  {t:"SSO (Single Sign-On)",d:"Log in once with one set of credentials and be automatically authenticated everywhere across multiple systems."},
+  {t:"OAuth",d:"A security protocol that lets one service access another on a user\u2019s behalf without sharing passwords."},
+  {t:"Service Principal",d:"A machine account for automated connections \u2014 not tied to any individual person. Like a department badge that grants access to specific rooms."},
+  {t:"Microsoft Entra ID",d:"Microsoft\u2019s identity management system (formerly Azure Active Directory) that manages identities and access across all Microsoft services."},
+  {t:"RBAC (Role-Based Access Control)",d:"Assigning permissions based on a person\u2019s role (like \u2018data analyst\u2019 or \u2018administrator\u2019) rather than individually."},
+  {t:"Conditional Access",d:"Security policies that require extra steps based on conditions \u2014 for example, requiring multi-factor authentication based on location or device."},
+  {t:"MFA (Multi-Factor Authentication)",d:"Proving identity with a second method like a phone code, in addition to a password."},
+  {t:"Customer-Managed Keys (CMK)",d:"Encryption keys that the organization controls rather than the vendor \u2014 for extra security over sensitive data."},
+  // Microsoft Ecosystem
+  {t:"Power Platform",d:"Microsoft\u2019s suite of low-code tools: Power Apps (build business apps), Power Automate (automate workflows), and Copilot Studio (build AI chatbots)."},
+  {t:"Power Apps",d:"Microsoft\u2019s tool for building business applications with drag-and-drop instead of writing code."},
+  {t:"Canvas App",d:"An app designed from scratch on a blank canvas with drag-and-drop, as opposed to model-driven apps generated from data structure."},
+  {t:"Power Automate",d:"Microsoft\u2019s tool for automating workflows between systems. A \u2018flow\u2019 is an automated workflow."},
+  {t:"Flow",d:"An automated workflow in Power Automate \u2014 a sequence of steps that runs automatically when triggered."},
+  {t:"Power BI",d:"Microsoft\u2019s tool for creating interactive data visualizations, reports, and dashboards."},
+  {t:"Dashboard",d:"A single-screen view of key metrics \u2014 like a car dashboard showing speed, fuel, and engine temperature at a glance."},
+  {t:"DirectQuery",d:"Power BI mode that sends live queries every time someone views a report \u2014 data is always current but may be slower."},
+  {t:"Import Mode",d:"Power BI mode that downloads a copy of data and refreshes on a schedule \u2014 faster but not real-time."},
+  {t:"Copilot Studio",d:"Microsoft\u2019s tool for building AI chatbots that can be published to Teams, M365, and other channels."},
+  {t:"Dataverse",d:"Microsoft\u2019s cloud database underneath Power Platform apps."},
+  {t:"Virtual Table",d:"A table structure in Dataverse that reads from Databricks at runtime without copying data \u2014 like a window into Databricks\u2019 data."},
+  {t:"SharePoint",d:"Microsoft\u2019s document management and collaboration platform \u2014 where organizations store, share, and manage documents and internal sites."},
+  {t:"OneLake",d:"Microsoft Fabric\u2019s central data lake \u2014 the single storage location for all Fabric data."},
+  {t:"Microsoft Fabric",d:"Microsoft\u2019s own analytics platform, similar to Databricks but built into the Microsoft ecosystem."},
+  {t:"Microsoft Purview",d:"Microsoft\u2019s governance and compliance platform for Fabric \u2014 separate from Databricks\u2019 Unity Catalog."},
+  {t:"MACC",d:"Microsoft Azure Consumption Commitment \u2014 a contract committing to Azure spending over 1\u20133 years for discounted pricing. Databricks costs may count toward it."},
+  {t:"ADLS Gen2",d:"Azure Data Lake Storage Gen2 \u2014 Microsoft\u2019s cloud storage for large datasets, the primary storage layer for Azure Databricks."},
+  {t:"Azure Key Vault",d:"Azure\u2019s service for securely storing passwords, API keys, and encryption keys."},
+  {t:"Azure Blob Storage",d:"Azure\u2019s general-purpose storage for any type of file \u2014 \u2018blob\u2019 stands for Binary Large Object."},
+  {t:"ARM Templates",d:"Azure Resource Manager templates \u2014 pre-written configuration files that automate the creation of Azure resources."},
+  {t:"Data Gateway",d:"A bridge that lets cloud services securely access data in private networks or on-premises systems."},
+  {t:"ADBC Driver",d:"Arrow Database Connectivity \u2014 a modern, faster method for connecting software to databases."},
+  // Databricks-Specific
+  {t:"DBU (Databricks Unit)",d:"The billing unit for Databricks \u2014 different work types (jobs, SQL, model serving) consume DBUs at different rates."},
+  {t:"Unity Catalog",d:"Databricks\u2019 centralized governance system controlling who can access what data, tracking lineage, enforcing policies, and managing permissions across the entire environment."},
+  {t:"Catalog",d:"The top organizational unit in Unity Catalog \u2014 like a building on a campus, containing schemas."},
+  {t:"Workspace",d:"The main environment for working in Databricks \u2014 like a desk and office within the larger building."},
+  {t:"Genie",d:"Databricks\u2019 natural language analytics interface \u2014 business users ask questions in plain English and get answers without writing SQL."},
+  {t:"Genie Space",d:"A configured environment where a data analyst connects datasets, sample queries, and business terminology so Genie can answer questions accurately for that domain."},
+  {t:"Lakeflow",d:"Databricks\u2019 pipeline orchestration framework for building ETL/ELT workflows. \u2018Declarative\u2019 means describing the end result and letting the system figure out how to get there."},
+  {t:"Lakebase",d:"Databricks\u2019 transactional database for OLTP workloads (small, fast operations). Postgres-compatible, with autoscaling, scale-to-zero, branching, and instant restore."},
+  {t:"Agent Bricks",d:"Automated approach to building production-grade AI agents \u2014 describe the task, connect data, and it handles optimization, evaluation, and deployment. Currently in Beta."},
+  {t:"Agent Framework",d:"Databricks\u2019 SDK and toolset for building, deploying, and managing AI agent systems, integrated with Unity Catalog governance."},
+  {t:"Agent Evaluation",d:"Databricks\u2019 suite for measuring AI agent quality: accuracy, groundedness, relevance, and safety \u2014 using AI judges and human feedback."},
+  {t:"AI Gateway",d:"Databricks\u2019 unified gateway for governing all AI services \u2014 usage tracking, rate limiting, access controls, and observability."},
+  {t:"Mosaic AI Vector Search",d:"Databricks\u2019 system for indexing and embedding data for similarity search, powering RAG applications. Rewritten for 7x lower cost at billions of vectors."},
+  {t:"Foundation Model APIs",d:"Pay-per-token access to hosted AI models (Claude, Llama, Gemini, etc.) through Databricks without managing servers."},
+  {t:"MLflow",d:"Open-source ML lifecycle management tool \u2014 experiment tracking, model versioning, prompt management, and agent observability."},
+  {t:"Databricks Apps",d:"A platform for deploying custom web applications directly within the Databricks environment without separate servers."},
+  {t:"Databricks SQL",d:"A SQL-native analytics interface for running queries against lakehouse data, including dashboards and Genie."},
+  {t:"Databricks Assistant",d:"AI coding assistant in Agent mode that can retrieve assets, generate and run code, fix errors, and visualize results from a single prompt."},
+  {t:"Delta Sharing",d:"A protocol for securely sharing data across organizations and platforms without copying it."},
+  {t:"Photon",d:"A high-performance query engine that speeds up data processing in Databricks, built on Apache Spark."},
+  // Release Stages
+  {t:"Beta",d:"Available for testing but not fully released \u2014 may change significantly or have limitations. Not covered by SLAs."},
+  {t:"Public Preview",d:"More stable than Beta but still not fully released. May have some limitations."},
+  {t:"GA (Generally Available)",d:"Fully released, supported, and covered by SLAs (contractual uptime guarantees)."},
+  {t:"SLA",d:"Service Level Agreement \u2014 a contractual guarantee about uptime, performance, and support."},
+  // Business/Process
+  {t:"FinOps",d:"The practice of managing and optimizing cloud spending \u2014 budgets, alerts, auto-termination, and cost attribution."},
+  {t:"Chargeback (Tag-Based)",d:"Attaching labels like \u2018team:marketing\u2019 to cloud resources so costs flow to the right budget \u2014 tracking who spent what."},
+  {t:"BI (Business Intelligence)",d:"The tools and practices for turning data into reports, dashboards, and insights that help organizations make decisions."},
+  {t:"KPI",d:"Key Performance Indicator \u2014 a measurable value showing how effectively an organization is achieving a business objective."},
+  {t:"Metric View",d:"A centralized definition of a business metric (e.g., \u2018net revenue = gross revenue minus refunds\u2019) that is calculated consistently everywhere it is used."},
+  {t:"Semantic Layer",d:"A translation layer between raw data and business-friendly terms that ensures everyone means the same thing when they say \u2018net revenue\u2019 or \u2018active customer.\u2019"},
+  {t:"Observability",d:"Seeing what is happening inside a system \u2014 which requests succeed or fail, performance metrics, error tracking."},
+  {t:"Rate Limiting",d:"Maximum usage caps on a service to control costs and prevent overload \u2014 like a speed limit for API calls."},
+  {t:"Provisioned Throughput",d:"Reserved processing capacity guaranteeing consistent speed for production use \u2014 paying for guaranteed performance rather than pay-per-use."},
+  {t:"Pay-Per-Token",d:"Pricing model where cost is based on the number of tokens (roughly words) sent to and received from an AI model \u2014 good for testing and low-volume use."},
+  {t:"DBCU (Databricks Commit Unit)",d:"Prepurchased Databricks capacity for 1\u20133 years at a discount. The discount applies to DBU charges only; compute, storage, and networking are separate."},
+  {t:"First-Party Azure Service",d:"An officially integrated part of Azure (not a third-party add-on) \u2014 managed through the Azure portal, on the Azure bill, covered by Azure support."},
+  {t:"SaaS",d:"Software as a Service \u2014 software delivered over the internet that the vendor manages entirely. No installation or server maintenance needed."},
+  {t:"DDL",d:"Data Definition Language \u2014 SQL commands for creating and modifying table structures (CREATE TABLE, ALTER TABLE)."},
+  {t:"DML",d:"Data Manipulation Language \u2014 SQL commands for inserting, updating, and deleting data (INSERT, UPDATE, DELETE)."},
+  {t:"ODBC",d:"Open Database Connectivity \u2014 a standardized method for connecting software to databases."},
+  {t:"JDBC",d:"Java Database Connectivity \u2014 another standardized method for connecting software to databases, commonly used in enterprise systems."},
+  {t:"OneLake Catalog Federation",d:"A Beta feature allowing Unity Catalog in Databricks to discover and query data stored in Microsoft Fabric\u2019s OneLake without copying it. Currently read-only."},
+  {t:"OLTP",d:"Online Transaction Processing \u2014 databases designed for lots of small, fast operations like processing credit cards and recording orders."},
+  {t:"Compound AI System",d:"An AI system that combines multiple components \u2014 language models, tools, retrieval systems, and reasoning \u2014 to perform complex tasks beyond what a single model can do."},
+  {t:"Knowledge Assistant",d:"An Agent Bricks template that creates chatbots answering questions about documents with citations showing where the answer came from."},
+  {t:"Supervisor Agent",d:"An Agent Bricks template that coordinates multiple agents and tools for complex multi-step tasks."},
+  {t:"Information Extraction Agent",d:"An Agent Bricks template that turns unstructured documents (emails, PDFs, contracts) into organized, structured data fields."},
+    ]
+  }
+];
+
+
+// ══════════════════════════════════════════════════════════════
+// ENGINE
+// ══════════════════════════════════════════════════════════════
+
+const STORAGE_PREFIX = "techflash-v1-";
+const $ = id => document.getElementById(id);
+
+let activeDeck = null;
+let cardStates = [];
+let currentIdx = null;
+let isFlipped = false;
+let sessionRight = 0;
+let sessionWrong = 0;
+let relearnQueue = [];
+
+// ── Landing Page ──
+
+function renderLanding() {
+  const totalCards = DECKS.reduce((s, d) => s + d.cards.length, 0);
+  $("landingTotal").textContent = totalCards + " cards across " + DECKS.length + " decks";
+
+  const grid = $("deckGrid");
+  grid.innerHTML = "";
+
+  DECKS.forEach(deck => {
+    const saved = loadDeckState(deck.id, deck.cards.length);
+    const retired = saved ? saved.cards.filter(c => c.retiredUntil && Date.now() < c.retiredUntil).length : 0;
+    const pct = Math.round((retired / deck.cards.length) * 100);
+
+    const el = document.createElement("div");
+    el.className = "deck-card";
+    el.onclick = () => openDeck(deck.id);
+    el.innerHTML =
+      '<div class="deck-icon ' + deck.iconClass + '">' + deck.icon + '</div>' +
+      '<div class="deck-info">' +
+        '<div class="deck-name">' + deck.name + '</div>' +
+        '<div class="deck-desc">' + deck.desc + '</div>' +
+        '<div class="deck-meta">' +
+          '<span class="deck-count">' + deck.cards.length + ' cards</span>' +
+          '<div class="deck-progress-outer ' + deck.progressClass + '">' +
+            '<div class="deck-progress-inner" style="width:' + pct + '%"></div>' +
+          '</div>' +
+          '<span class="deck-pct">' + pct + '%</span>' +
+        '</div>' +
+      '</div>';
+    grid.appendChild(el);
+  });
+
+  $("landingPage").classList.remove("hidden");
+  $("studyView").classList.add("hidden");
+}
+
+function loadDeckState(id, count) {
+  try {
+    const raw = localStorage.getItem(STORAGE_PREFIX + id);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed.cards && parsed.cards.length === count) return parsed;
+    return null;
+  } catch { return null; }
+}
+
+function openDeck(id) {
+  activeDeck = DECKS.find(d => d.id === id);
+  if (!activeDeck) return;
+
+  const saved = loadDeckState(activeDeck.id, activeDeck.cards.length);
+  if (saved) {
+    cardStates = saved.cards;
+    relearnQueue = saved.relearnQueue || [];
+  } else {
+    cardStates = freshState(activeDeck.cards.length);
+    relearnQueue = [];
+  }
+
+  currentIdx = null;
+  isFlipped = false;
+  sessionRight = 0;
+  sessionWrong = 0;
+
+  $("deckTitle").textContent = activeDeck.name;
+  $("cardCount").textContent = activeDeck.cards.length;
+  $("landingPage").classList.add("hidden");
+  $("studyView").classList.remove("hidden");
+
+  updateStats();
+  pickNext();
+}
+
+// ── State ──
+
+function freshState(n) {
+  return Array.from({length: n}, (_, i) => ({ id: i, streak: 0, nextReview: 0, retiredUntil: null, seen: false }));
+}
+
+function save() {
+  if (!activeDeck) return;
+  localStorage.setItem(STORAGE_PREFIX + activeDeck.id, JSON.stringify({
+    cards: cardStates, relearnQueue: relearnQueue, ts: Date.now()
+  }));
+}
+
+function isRetired(c) { return c.retiredUntil && Date.now() < c.retiredUntil; }
+
+function getTimeDue() {
+  const now = Date.now();
+  return cardStates.filter(c => !isRetired(c) && c.seen && c.streak > 0 && c.nextReview > 0 && c.nextReview <= now);
+}
+
+function getUnseen() { return cardStates.filter(c => !isRetired(c) && !c.seen); }
+
+function updateStats() {
+  const total = activeDeck.cards.length;
+  const retired = cardStates.filter(c => isRetired(c)).length;
+  const reviewing = relearnQueue.length + cardStates.filter(c => !isRetired(c) && c.seen && c.streak > 0 && c.nextReview > Date.now()).length;
+  const readyRelearn = relearnQueue.filter(r => r.cardsLeft <= 0).length;
+  const due = readyRelearn + getTimeDue().length + getUnseen().length;
+  const pct = Math.round((retired / total) * 100);
+
+  $("progressBar").style.width = pct + "%";
+  $("statLearned").textContent = retired + " learned";
+  $("statReview").textContent = reviewing + " reviewing";
+  $("statDue").textContent = due + " due";
+  $("statRight").textContent = sessionRight + " right";
+  $("statWrong").textContent = sessionWrong + " wrong";
+}
+
+function pickNext() {
+  const ready = relearnQueue.filter(r => r.cardsLeft <= 0);
+  if (ready.length > 0) {
+    const entry = ready[0];
+    relearnQueue = relearnQueue.filter(r => r !== entry);
+    currentIdx = entry.id; isFlipped = false; showCard(); return;
+  }
+  const td = getTimeDue();
+  if (td.length > 0) { currentIdx = td[0].id; isFlipped = false; showCard(); return; }
+  const uns = getUnseen();
+  if (uns.length > 0) { currentIdx = uns[0].id; isFlipped = false; showCard(); return; }
+  showComplete();
+}
+
+function showCard() {
+  $("cardArea").classList.remove("hidden");
+  $("completeScreen").classList.add("hidden");
+  $("cardFront").classList.remove("hidden");
+  $("cardBack").classList.add("hidden");
+  $("btnRow").classList.add("hidden");
+  $("card").classList.remove("flipped");
+
+  const card = activeDeck.cards[currentIdx];
+  const state = cardStates[currentIdx];
+  $("defText").textContent = card.d;
+
+  for (let i = 0; i < 3; i++) $("dot" + i).classList.toggle("active", state.streak > i);
+  $("streakLabel").textContent = state.streak === 0 ? (state.seen ? "Again" : "New") : state.streak + "/3";
+  $("rightTime").textContent = state.streak >= 2 ? "Done!" : "1m";
+}
+
+function flip() {
+  if (isFlipped || currentIdx === null) return;
+  isFlipped = true;
+  $("card").classList.add("flipped");
+  $("cardFront").classList.add("hidden");
+  $("cardBack").classList.remove("hidden");
+  $("btnRow").classList.remove("hidden");
+  $("termText").textContent = activeDeck.cards[currentIdx].t;
+  $("defSmall").textContent = activeDeck.cards[currentIdx].d;
+}
+
+function answer(correct) {
+  if (currentIdx === null) return;
+  const idx = currentIdx;
+  currentIdx = null;
+  const c = cardStates[idx];
+  c.seen = true;
+
+  relearnQueue.forEach(r => { r.cardsLeft--; });
+
+  if (correct) {
+    c.streak += 1;
+    sessionRight++;
+    if (c.streak >= 3) {
+      const tom = new Date(); tom.setHours(24,0,0,0);
+      c.retiredUntil = tom.getTime();
+      c.nextReview = tom.getTime();
+    } else {
+      c.nextReview = Date.now() + 60000;
+    }
+  } else {
+    c.streak = 0; c.nextReview = 0; sessionWrong++;
+    relearnQueue = relearnQueue.filter(r => r.id !== idx);
+    relearnQueue.push({ id: idx, cardsLeft: 2 });
+  }
+
+  save(); updateStats(); pickNext();
+}
+
+function showComplete() {
+  currentIdx = null;
+  $("cardArea").classList.add("hidden");
+  $("completeScreen").classList.remove("hidden");
+
+  const retired = cardStates.filter(c => isRetired(c)).length;
+  const wRL = relearnQueue.length;
+  const wTime = cardStates.filter(c => !isRetired(c) && c.seen && c.streak > 0 && c.nextReview > Date.now()).length;
+  const waiting = wRL + wTime;
+
+  let msg = retired + " of " + activeDeck.cards.length + " terms learned today.";
+  if (waiting > 0) msg += " " + waiting + " card" + (waiting === 1 ? " is" : "s are") + " waiting. Check again in a moment.";
+  $("completeText").textContent = msg;
+  $("continueBtn").classList.toggle("hidden", waiting === 0);
+}
+
+function resetDeck() {
+  if (!activeDeck) return;
+  if (!confirm("Reset progress for " + activeDeck.name + "? This cannot be undone.")) return;
+  cardStates = freshState(activeDeck.cards.length);
+  relearnQueue = []; sessionRight = 0; sessionWrong = 0;
+  save(); updateStats();
+  $("completeScreen").classList.add("hidden");
+  $("cardArea").classList.remove("hidden");
+  pickNext();
+}
+
+function goBack() {
+  activeDeck = null;
+  renderLanding();
+}
+
+function resetAllDecks() {
+  if (!confirm("Reset ALL progress across all decks? This cannot be undone.")) return;
+  DECKS.forEach(d => localStorage.removeItem(STORAGE_PREFIX + d.id));
+  renderLanding();
+}
+
+// ── Events ──
+$("card").addEventListener("click", flip);
+$("wrongBtn").addEventListener("click", () => answer(false));
+$("rightBtn").addEventListener("click", () => answer(true));
+$("resetBtn").addEventListener("click", resetDeck);
+$("backBtn").addEventListener("click", goBack);
+$("continueBtn").addEventListener("click", () => {
+  $("completeScreen").classList.add("hidden");
+  $("cardArea").classList.remove("hidden");
+  pickNext();
+});
+$("landingResetBtn").addEventListener("click", resetAllDecks);
+
+document.addEventListener("keydown", e => {
+  if (!activeDeck) return;
+  if (e.key === " " || e.key === "Enter") { e.preventDefault(); if (!isFlipped && currentIdx !== null) flip(); }
+  if (isFlipped && currentIdx !== null) {
+    if (e.key === "1" || e.key === "ArrowLeft") answer(false);
+    if (e.key === "2" || e.key === "ArrowRight") answer(true);
+  }
+  if (e.key === "Escape") goBack();
+});
+
+// ── Boot ──
+renderLanding();
+</script>
+</body>
+</html>
